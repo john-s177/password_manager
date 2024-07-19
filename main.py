@@ -1,6 +1,7 @@
 from tkinter import *
 from tkinter import messagebox
 import pyperclip
+import json
 # ---------------------------- PASSWORD GENERATOR ------------------------------- #
 def generate():
     import random
@@ -31,21 +32,32 @@ def save():
     email = email_entry.get()
     password = password_entry.get()
     website = website_entry.get()
+    new_data = {
+        website: {
+            "email": email,
+            "password": password
+        }
+    }
 
-    if email == "" or password=="" or website=="":
-        messagebox.showinfo( title="WARNING", message="Don't Leave The fields as Empty")
-
+    if not email or not password or not website:
+        messagebox.showinfo(title="WARNING", message="Don't Leave The Fields Empty")
     else:
+        try:
+            with open("/Users/SAMEH/Desktop/web/python/password-manager/data.json", mode="r") as file:
+                try:
+                    data = json.load(file)
+                except json.JSONDecodeError:
+                    data = {}
+        except FileNotFoundError:
+            data = {}
 
-        is_ok = messagebox.askokcancel(title=website, message=f"Email: {email}\n Password: {password}\n Confirm?")
+        data.update(new_data)
 
-        if is_ok:
+        with open("/Users/SAMEH/Desktop/web/python/password-manager/data.json", mode="w") as file:
+            json.dump(data, file, indent=4)
 
-            with open("/Users/SAMEH/Desktop/web/python/password-manager/data.txt", mode="a") as file:
-                file.write(f"{website} | {email} | {password}\n")
-
-            password_entry.delete(0, 'end')
-            website_entry.delete(0, 'end')
+        password_entry.delete(0, 'end')
+        website_entry.delete(0, 'end')
 
 # ---------------------------- UI SETUP ------------------------------- #
 window = Tk()
